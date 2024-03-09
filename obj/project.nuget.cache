@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "0HzloPP/xn5YSIEZSywdrMtXvMRTO4XgLUstDDeM936F72jfYLdF34UWiNsGZCtMVMv//l8jSJ29CIauIf+YiA==",
+  "success": true,
+  "projectFilePath": "C:\\SQLite\\dbtest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\engma\\.nuget\\packages\\sqlite\\3.13.0\\sqlite.3.13.0.nupkg.sha512",
+    "C:\\Users\\engma\\.nuget\\packages\\stub.system.data.sqlite.core.netstandard\\1.0.118\\stub.system.data.sqlite.core.netstandard.1.0.118.nupkg.sha512",
+    "C:\\Users\\engma\\.nuget\\packages\\system.data.sqlite.core\\1.0.118\\system.data.sqlite.core.1.0.118.nupkg.sha512"
+  ],
+  "logs": []
+}
