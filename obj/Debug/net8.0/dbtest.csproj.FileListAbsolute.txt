@@ -48,3 +48,4 @@ C:\SQLite\obj\Debug\net8.0\refint\dbtest.dll
 C:\SQLite\obj\Debug\net8.0\dbtest.pdb
 C:\SQLite\obj\Debug\net8.0\dbtest.genruntimeconfig.cache
 C:\SQLite\obj\Debug\net8.0\ref\dbtest.dll
+C:\SQLite\obj\Debug\net8.0\dbtest.sourcelink.json
