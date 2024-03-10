@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dbtest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8602318117524c083aeb7ec3c16d8154d1fbcb4f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1cdc2293350942d51302badbc70ebccd04dc9f9f")]
 [assembly: System.Reflection.AssemblyProductAttribute("dbtest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dbtest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

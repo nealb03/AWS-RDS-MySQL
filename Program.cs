@@ -17,11 +17,42 @@ namespace SQLiteDemo
 
       static void Main(string[] args)
       {
+         
          SQLiteConnection sqlite_conn;
          sqlite_conn = CreateConnection();         
-         ReadData(sqlite_conn);
+         //ReadData(sqlite_conn);
          //CreateTables(sqlite_conn);
          //dropTables(sqlite_conn);
+
+         int option = 0;
+         string inputOptionstring;
+
+         while(true){
+         Console.WriteLine("Please choose the option from the list below:\n"+
+         "1) Create Tables and fill data.\n"+
+         "2) Read Data from tables and tabulate data.\n"+
+         "3) Drop Tables.\n"+
+         "10)Exit Program!" );
+         inputOptionstring = Console.ReadLine() ?? "1" ;
+         option = Int32.Parse(inputOptionstring);        
+         switch(option){
+            case 1: CreateTables(sqlite_conn);
+                    Console.WriteLine("Tables created!"); 
+                    break;
+            case 2: ReadData(sqlite_conn);
+                    Console.WriteLine("Tables data retrieved!"); 
+                    break;
+            case 3: dropTables(sqlite_conn);
+            Console.WriteLine("Tables dropped!");
+                  break;
+            case 10: 
+                  Console.WriteLine("Exit program!");
+                  System.Environment.Exit(1);  break; 
+            default: 
+               Console.WriteLine("Option not provided from the list. \nHere is a list of acceptable options:\n");   
+               break;
+            }
+         }
       }
    static SQLiteConnection CreateConnection()
       {
@@ -45,7 +76,7 @@ namespace SQLiteDemo
 
    static void dropTables(SQLiteConnection conn){
      SQLiteCommand sqlite_cmd;
-         string Createsql = 
+         string dropSqlStatement = 
           "drop table EMPLOYEE;"+
           "drop table DEPARTMENT;"+
           "drop table PROJECT;"+
@@ -61,7 +92,7 @@ namespace SQLiteDemo
             Console.WriteLine(ex.Message);
          }   
          sqlite_cmd = conn.CreateCommand();
-         sqlite_cmd.CommandText = Createsql;
+         sqlite_cmd.CommandText = dropSqlStatement;
          sqlite_cmd.ExecuteNonQuery();          
 }
 
@@ -88,8 +119,6 @@ namespace SQLiteDemo
          SQLiteDataReader sqlite_datareader;
          SQLiteCommand sqlite_cmd;
          sqlite_cmd = conn.CreateCommand();
-         //int SSN = 123456789;
-         //sqlite_cmd.CommandText = "SELECT Fname, Lname FROM EMPLOYEE WHERE Ssn = " + SSN.ToString() ;
          sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE, DEPENDENT Where Ssn= Essn " ;
 
          int rowCounter = 0;
