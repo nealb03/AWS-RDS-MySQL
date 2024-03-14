@@ -30,7 +30,8 @@ namespace SQLiteDemo
          "3) Drop Tables.\n"+
          "4) Search Employee by SSN.\n"+
          "5) Search Department by Dnumer\n"+
-         "6) Add Department\n "+
+         "6) Add Department\n"+
+         "7) Add Department Location\n"+
          "10)Exit Program!" 
           );
          inputOptionstring = Console.ReadLine() ?? "1" ;
@@ -51,9 +52,13 @@ namespace SQLiteDemo
             case 6: 
                   InsertDepartment( sqlite_conn);
                   break;
+            case 7: 
+                  AddDepartmentLocation(sqlite_conn);
+                  break;
             case 10: 
                   Console.WriteLine("Exit program!");
                   System.Environment.Exit(1);  break; 
+                  
             default: 
                Console.WriteLine("Option not provided from the list. \nHere is a list of acceptable options:\n");   
                break;
@@ -140,7 +145,9 @@ namespace SQLiteDemo
          SQLiteDataReader sqlite_datareader;
          SQLiteCommand sqlite_cmd;
          sqlite_cmd = conn.CreateCommand();
-         sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE, DEPENDENT Where Ssn= Essn " ;
+         //sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE, DEPENDENT Where Ssn= Essn " ;
+         sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE" ;
+
 
          int rowCounter = 0;
          sqlite_datareader = sqlite_cmd.ExecuteReader();     
@@ -155,7 +162,9 @@ namespace SQLiteDemo
              counter++;            
             }
          }catch(Exception e){
-            Console.WriteLine(e.Message);
+           // Console.WriteLine(e.Message);
+           string s = e.Message;
+           s= "";
          }
          Console.WriteLine();
          rowCounter++;
@@ -164,8 +173,7 @@ namespace SQLiteDemo
          Console.WriteLine("Tables data retrieved!"); 
          Console.WriteLine("No. of Attributes = "+ sqlite_datareader.GetValues().Count);
          Console.WriteLine("No. of Rows = "+ rowCounter);
-         conn.Close();
-         
+         conn.Close();         
       }
     
    static void searchEmployeeBySSN(SQLiteConnection conn)
@@ -270,6 +278,11 @@ namespace SQLiteDemo
          conn.Close();
       }
 
+      static void AddDepartmentLocation(SQLiteConnection conn)
+      {
+         Console.WriteLine("Location Added!");
+      }
+
       static void InsertDepartment(SQLiteConnection conn)
       {
 
@@ -286,7 +299,7 @@ namespace SQLiteDemo
          }
  
          sqlite_cmd = conn.CreateCommand();
-         Console.WriteLine("Enter the department data seperated by comma and hit enter after last data value:");
+         Console.WriteLine("Enter the department data seperated by comma and hit enter after last data value:\n For the date values input in the following foramt: Jan 15, 2024\n");
          string input = Console.ReadLine() ?? " ";
          string[] split = input.Split(',');       
 
@@ -302,10 +315,12 @@ namespace SQLiteDemo
          sqlite_cmd.Parameters.Add("@MGR_SSN", DbType.Int32);
          sqlite_cmd.Parameters["@MGR_SSN"].Value = MGRSSN;
 
-         string startdate = split[3]  ;
+         string startdate = split[3];
+         var parsedDate = DateTime.Parse(startdate + split[4]);
          Console.WriteLine(startdate);
-         sqlite_cmd.Parameters.Add("@STARTDATE", DbType.String);
-         sqlite_cmd.Parameters["@STARTDATE"].Value = startdate;
+         sqlite_cmd.Parameters.Add("@STARTDATE", DbType.Date);
+         sqlite_cmd.Parameters["@STARTDATE"].Value =parsedDate;
+
 
          string queryText = "Insert into DEPARTMENT values (@D_NAME, @DNUMBER, @MGR_SSN, @STARTDATE )";
          sqlite_cmd.CommandText = queryText;
