@@ -29,8 +29,8 @@ namespace SQLiteDemo
          "2) Read Data from tables and tabulate data.\n"+
          "3) Drop Tables.\n"+
          "4) Search Employee by SSN.\n"+
-         "5) Search Department by Dnumer:\n"+
-         "6) Insert Department\n "+
+         "5) Search Department by Dnumer\n"+
+         "6) Add Department\n "+
          "10)Exit Program!" 
           );
          inputOptionstring = Console.ReadLine() ?? "1" ;
