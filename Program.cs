@@ -300,27 +300,29 @@ namespace SQLiteDemo
  
          sqlite_cmd = conn.CreateCommand();
          Console.WriteLine("Enter the department data seperated by comma and hit enter after last data value:\n For the date values input in the following foramt: Jan 15, 2024\n");
-         string input = Console.ReadLine() ?? " ";
-         string[] split = input.Split(',');       
+         //string input = Console.ReadLine() ?? " ";
+         //string[] split = input.Split(',');  
 
-         int DNUM = Convert.ToInt32(split[1]);
+         string DnameStr= Console.ReadLine() ?? "Department";
+         string DNAME = DnameStr;
+         sqlite_cmd.Parameters.Add("@D_NAME", DbType.String);
+         sqlite_cmd.Parameters["@D_NAME"].Value = DNAME;
+        
+         string DnoStr= Console.ReadLine() ?? "";
+         int DNUM = Int32.Parse(DnoStr); 
          sqlite_cmd.Parameters.Add("@DNUMBER", DbType.Int32);
          sqlite_cmd.Parameters["@DNUMBER"].Value = DNUM;
 
-         string DNAME = split[0];
-         sqlite_cmd.Parameters.Add("@D_NAME", DbType.String);
-         sqlite_cmd.Parameters["@D_NAME"].Value = DNAME;
-
-         int MGRSSN = Convert.ToInt32(split[2]);
+         string mgrssnStr= Console.ReadLine() ?? "9999";
+         int MGRSSN = Int32.Parse(mgrssnStr);
          sqlite_cmd.Parameters.Add("@MGR_SSN", DbType.Int32);
          sqlite_cmd.Parameters["@MGR_SSN"].Value = MGRSSN;
 
-         string startdate = split[3];
-         var parsedDate = DateTime.Parse(startdate + split[4]);
-         Console.WriteLine(startdate);
+         string sdateStr= Console.ReadLine() ?? "9999";
+         string startdate = sdateStr;
+         var parsedDate = DateTime.Parse(startdate);
          sqlite_cmd.Parameters.Add("@STARTDATE", DbType.Date);
          sqlite_cmd.Parameters["@STARTDATE"].Value =parsedDate;
-
 
          string queryText = "Insert into DEPARTMENT values (@D_NAME, @DNUMBER, @MGR_SSN, @STARTDATE )";
          sqlite_cmd.CommandText = queryText;
