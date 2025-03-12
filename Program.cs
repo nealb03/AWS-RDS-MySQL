@@ -10,16 +10,17 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
-namespace SQLiteDemo
+namespace AWSRDSDemo
 {
    class Program
    {
 
       static void Main(string[] args)
       {         
-         SQLiteConnection sqlite_conn;
-         sqlite_conn = CreateConnection();         
+         MySqlConnection mysql_conn;
+         mysql_conn = CreateConnection();         
          int option = 0;
          string inputOptionstring;
 
@@ -37,85 +38,110 @@ namespace SQLiteDemo
          inputOptionstring = Console.ReadLine() ?? "1" ;
          option = Int32.Parse(inputOptionstring);        
          switch(option){
-            case 1: CreateTables(sqlite_conn);                   
+            case 1: CreateTables(mysql_conn);                   
                     break;
-            case 2: ReadData(sqlite_conn);
+            case 2: ReadData(mysql_conn);
                     break;
-            case 3: dropTables(sqlite_conn);
+            case 3: dropTables(mysql_conn);
                   break;
             case 4: 
-                  searchEmployeeBySSN(sqlite_conn);
+                  searchEmployeeBySSN(mysql_conn);
                   break;
             case 5:
-                  searchDepartmentByDNumber(sqlite_conn);
+                  searchDepartmentByDNumber(mysql_conn);
                   break;
             case 6: 
-                  InsertDepartment( sqlite_conn);
+                  InsertDepartment( mysql_conn);
                   break;
             case 7: 
-                  AddDepartmentLocation(sqlite_conn);
+                  AddDepartmentLocation(mysql_conn);
                   break;
             case 10: 
                   Console.WriteLine("Exit program!");
-                  System.Environment.Exit(1);  break; 
-                  
+                  System.Environment.Exit(1);  break;                            
             default: 
                Console.WriteLine("Option not provided from the list. \nHere is a list of acceptable options:\n");   
                break;
             }
          }
       }
-   static SQLiteConnection CreateConnection()
-      {
-         SQLiteConnection sqlite_conn;
+   
+   static MySqlConnection CreateConnection(){
+      MySqlConnection conn;
+      var constring1 = "Server=clouddb2.c944gfronmhi.us-east-1.rds.amazonaws.com;Database=COMPANY;User ID=admin;Password=clouddb2password;SslMode=Preferred;";
+      var constring2 = "Server=clouddb2.c944gfronmhi.us-east-1.rds.amazonaws.com;User ID=admin;Password=clouddb2password;SslMode=Preferred;";
          // Create a new database connection:
-            sqlite_conn = new SQLiteConnection("Data Source=company.db;Version=3");
+         conn = new MySqlConnection(constring1);
          // Open the connection:
          try
          {
-            sqlite_conn.Open();
+            conn.Open();           
          }
          catch (Exception ex)
          {
-            Console.WriteLine(ex.Message);
+            try
+            {               
+               conn = new MySqlConnection(constring2);
+               conn.Open();
+               var cmd = conn.CreateCommand();
+               cmd.CommandText = "CREATE DATABASE IF NOT EXISTS `COMPANY`;";
+               cmd.ExecuteNonQuery();
+               return conn;
+            }
+            catch(Exception ex2){
+               Console.WriteLine(ex.Message);
+               Console.WriteLine(ex2.Message);               
+            }           
          }
-         return sqlite_conn;
-      }
+         return conn;
+   }
 
 
-   static void dropTables(SQLiteConnection conn){
-      Console.WriteLine("Are you sure you want to drop the tables? (yes, no) ");
-      string Y= "no";
-      Y = Console.ReadLine() ?? "no";
-      if(Y == "yes"){
-     SQLiteCommand sqlite_cmd;
-         string dropSqlStatement = 
-          "drop table EMPLOYEE;"+
-          "drop table DEPARTMENT;"+
-          "drop table PROJECT;"+
-          "drop table DEPT_LOCATIONS;"+
-          "drop table WORKS_ON;"+
-          "drop table DEPENDENT;";  
-          try
-         {
+  static void dropTables(MySqlConnection conn)
+{
+    Console.WriteLine("Are you sure you want to drop the tables? (yes, no) ");
+    string Y = Console.ReadLine() ?? "no";
+
+    if (Y.ToLower() == "yes")
+    {
+        string[] dropStatements = new string[]
+        {
+            "DROP TABLE IF EXISTS DEPENDENT;",
+            "DROP TABLE IF EXISTS WORKS_ON;",
+            "DROP TABLE IF EXISTS DEPT_LOCATIONS;",
+            "DROP TABLE IF EXISTS PROJECT;",
+            "DROP TABLE IF EXISTS DEPARTMENT;",
+            "DROP TABLE IF EXISTS EMPLOYEE;"
+        };
+
+        try
+        {
             conn.Open();
-         }
-         catch (Exception ex)
-         {
-            Console.WriteLine(ex.Message);
-         }   
-         sqlite_cmd = conn.CreateCommand();
-         sqlite_cmd.CommandText = dropSqlStatement;
-         sqlite_cmd.ExecuteNonQuery();     
-         Console.WriteLine("Tables dropped!");
-      } else{
-         Console.WriteLine("No Tables dropped!");
-      } 
+            foreach (string stmt in dropStatements)
+            {
+                using var cmd = new MySqlCommand(stmt, conn);
+                cmd.ExecuteNonQuery();
+            }
+            Console.WriteLine("Tables dropped!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+        finally
+        {
+            conn.Close();
+        }
+    }
+    else
+    {
+        Console.WriteLine("No Tables dropped!");
+    }
 }
 
-   static void CreateTables(SQLiteConnection conn)
+   static void CreateTables(MySqlConnection conn)
       {
-         SQLiteCommand sqlite_cmd;
+         MySqlCommand mydql_cmd;
          string Createsql = File.ReadAllText("createTables.txt");
          try
          {
@@ -126,13 +152,14 @@ namespace SQLiteDemo
             Console.WriteLine(ex.Message);
          }
          Console.WriteLine(Createsql);    
-         sqlite_cmd = conn.CreateCommand();
-         sqlite_cmd.CommandText = Createsql;
-         sqlite_cmd.ExecuteNonQuery();       
+         mydql_cmd = conn.CreateCommand();
+         mydql_cmd.CommandText = Createsql;
+         mydql_cmd.ExecuteNonQuery();       
           Console.WriteLine("Tables created!");  
+          conn.Close();
       }
 
-   static void ReadData(SQLiteConnection conn)
+   static void ReadData(MySqlConnection conn)
       {
          try
          {
@@ -142,24 +169,25 @@ namespace SQLiteDemo
          {
             Console.WriteLine(ex.Message);
          }
-         SQLiteDataReader sqlite_datareader;
-         SQLiteCommand sqlite_cmd;
-         sqlite_cmd = conn.CreateCommand();
-         //sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE, DEPENDENT Where Ssn= Essn " ;
-         sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE" ;
+         MySqlDataReader mysqldatareader;
+         
+         MySqlCommand mydql_cmd;
+         mydql_cmd = conn.CreateCommand();
+         //mydql_cmd.CommandText = "SELECT * FROM EMPLOYEE, DEPENDENT Where Ssn= Essn " ;
+         mydql_cmd.CommandText = "SELECT * FROM EMPLOYEE" ;
 
 
          int rowCounter = 0;
-         sqlite_datareader = sqlite_cmd.ExecuteReader();     
+         mysqldatareader = mydql_cmd.ExecuteReader();     
 
-         while (sqlite_datareader.Read())
+         while (mysqldatareader.Read())
          {
-         int counter = 0;
          try{
-            while(counter<sqlite_datareader.GetValues().Count ){
-             string myreader  = sqlite_datareader.GetValue(counter).ToString() ?? "";
-               Console.Write(myreader.PadRight(8) + "\t");
-             counter++;            
+            object[] values = new object[mysqldatareader.FieldCount];
+            for (int i = 0; i < mysqldatareader.FieldCount; i++)
+            {
+               values[i] = mysqldatareader.GetValue(i);
+               Console.Write(values[i] + "\t".PadRight(5));
             }
          }catch(Exception e){
            // Console.WriteLine(e.Message);
@@ -171,12 +199,12 @@ namespace SQLiteDemo
          }
          Console.WriteLine("----------------------------------------- ");
          Console.WriteLine("Tables data retrieved!"); 
-         Console.WriteLine("No. of Attributes = "+ sqlite_datareader.GetValues().Count);
+         Console.WriteLine("No. of Attributes = "+ mysqldatareader.FieldCount);
          Console.WriteLine("No. of Rows = "+ rowCounter);
          conn.Close();         
       }
     
-   static void searchEmployeeBySSN(SQLiteConnection conn)
+   static void searchEmployeeBySSN(MySqlConnection conn)
       {
          try
          {
@@ -188,31 +216,35 @@ namespace SQLiteDemo
            s =""   ;
          }
 
-         SQLiteDataReader sqlite_datareader;
-         SQLiteCommand sqlite_cmd;
+         MySqlDataReader mysqldatareader;
+         MySqlCommand mydql_cmd;
          Console.WriteLine("\nPlease input SSN: ");
          string ssn = Console.ReadLine() ?? "123456789";
          if (ssn == ""){
             Console.WriteLine("Not a valid SSN! No record retrieved!");
             return;
          }
-         sqlite_cmd = conn.CreateCommand();
-         sqlite_cmd.Parameters.Add("@SSN", DbType.Int32);
-         sqlite_cmd.Parameters["@SSN"].Value = ssn;
-         sqlite_cmd.CommandText = "SELECT * FROM EMPLOYEE Where Ssn= @SSN" ;
+         mydql_cmd = conn.CreateCommand();
+         mydql_cmd.Parameters.Add("@SSN", MySqlDbType.Int32).Value = ssn;
+
+         mydql_cmd.Parameters["@SSN"].Value = ssn;
+         
+         mydql_cmd.CommandText = "SELECT * FROM EMPLOYEE Where Ssn= @SSN" ;
 
          int rowCounter = 0;
-         sqlite_datareader = sqlite_cmd.ExecuteReader();     
+         mysqldatareader = mydql_cmd.ExecuteReader();     
 
-         while (sqlite_datareader.Read())
+         while (mysqldatareader.Read())
          {
-         int counter = 0;
+
          try{
-            while(counter<sqlite_datareader.GetValues().Count ){
-             string myreader  = sqlite_datareader.GetValue(counter).ToString() ?? "";
-               Console.Write(myreader.PadRight(8) + "\t");
-             counter++;            
-            }
+           object[] values = new object[mysqldatareader.FieldCount];
+            for (int i = 0; i < mysqldatareader.FieldCount; i++)
+            {
+               values[i] = mysqldatareader.GetValue(i);
+               Console.Write(values[i] + "\t".PadRight(5));
+            }  
+
          }catch(Exception e){
             string s = e.Message;            
          }
@@ -220,12 +252,12 @@ namespace SQLiteDemo
          rowCounter++;
          }
          Console.WriteLine("----------------------------------------- ");
-         Console.WriteLine("No. of Attributes = "+ sqlite_datareader.GetValues().Count);
+         Console.WriteLine("No. of Attributes = "+ mysqldatareader.FieldCount);
          Console.WriteLine("No. of Rows = "+ rowCounter);
          conn.Close();
       }
 
-       static void searchDepartmentByDNumber(SQLiteConnection conn)
+       static void searchDepartmentByDNumber(MySqlConnection conn)
       {
          try
          {
@@ -237,8 +269,8 @@ namespace SQLiteDemo
            s =""   ;
          }
 
-         SQLiteDataReader sqlite_datareader;
-         SQLiteCommand sqlite_cmd;
+         MySqlDataReader mysqldatareader;
+         MySqlCommand mydql_cmd;
          Console.WriteLine("\nPlease input Department Number: ");
          String DNOString = Console.ReadLine() ?? "1";
          int DNO = Convert.ToInt32(DNOString);
@@ -246,22 +278,23 @@ namespace SQLiteDemo
             Console.WriteLine("Not a valid Dno! No record retrieved!");
             return;
          }
-         sqlite_cmd = conn.CreateCommand();
+         mydql_cmd = conn.CreateCommand();
 
-         sqlite_cmd.Parameters.Add("@Dno", DbType.Int32);
-         sqlite_cmd.Parameters["@Dno"].Value = DNO;
+         mydql_cmd.Parameters.Add("@Dno", MySqlDbType.Int32).Value = DNO;
 
-         sqlite_cmd.CommandText = "SELECT * FROM DEPARTMENT Where Dnumber= @Dno" ;
+         mydql_cmd.Parameters["@Dno"].Value = DNO;
+
+         mydql_cmd.CommandText = "SELECT * FROM DEPARTMENT Where Dnumber= @Dno" ;
 
          int rowCounter = 0;
-         sqlite_datareader = sqlite_cmd.ExecuteReader();     
+         mysqldatareader = mydql_cmd.ExecuteReader();     
 
-         while (sqlite_datareader.Read())
+         while (mysqldatareader.Read())
          {
          int counter = 0;
          try{
-            while(counter<sqlite_datareader.GetValues().Count ){
-             string myreader  = sqlite_datareader.GetValue(counter).ToString() ?? "        ";
+            while(counter<mysqldatareader.FieldCount ){
+             string myreader  = mysqldatareader.GetValue(counter).ToString() ?? "        ";
                Console.Write(myreader.PadRight(8) + "\t");
              counter++;            
             }
@@ -273,21 +306,19 @@ namespace SQLiteDemo
          rowCounter++;
          }
          Console.WriteLine("----------------------------------------- ");
-         Console.WriteLine("No. of Attributes = "+ sqlite_datareader.GetValues().Count);
+         Console.WriteLine("No. of Attributes = "+ mysqldatareader.FieldCount);
          Console.WriteLine("No. of Rows = "+ rowCounter);
          conn.Close();
       }
 
-      static void AddDepartmentLocation(SQLiteConnection conn)
+      static void AddDepartmentLocation(MySqlConnection conn)
       {
          Console.WriteLine("Location Added!");
       }
 
-      static void InsertDepartment(SQLiteConnection conn)
+      static void InsertDepartment(MySqlConnection conn)
       {
-
-
-         SQLiteCommand sqlite_cmd;
+         MySqlCommand mydql_cmd;
          try
          {
             conn.Open();
@@ -298,35 +329,36 @@ namespace SQLiteDemo
            s =""   ;
          }
  
-         sqlite_cmd = conn.CreateCommand();
-         Console.WriteLine("Enter the department data seperated by comma and hit enter after last data value:\n For the date values input in the following foramt: Jan 15, 2024\n");
+         mydql_cmd = conn.CreateCommand();
+         Console.WriteLine("Enter the department data one by one:\n For the date values input in the following foramt: Jan 15, 2024\n");
          //string input = Console.ReadLine() ?? " ";
          //string[] split = input.Split(',');  
 
          string DnameStr= Console.ReadLine() ?? "Department";
          string DNAME = DnameStr;
-         sqlite_cmd.Parameters.Add("@D_NAME", DbType.String);
-         sqlite_cmd.Parameters["@D_NAME"].Value = DNAME;
+         mydql_cmd.Parameters.Add("@D_NAME", MySqlDbType.VarChar).Value = DNAME;
+         mydql_cmd.Parameters["@D_NAME"].Value = DNAME;
         
          string DnoStr= Console.ReadLine() ?? "";
          int DNUM = Int32.Parse(DnoStr); 
-         sqlite_cmd.Parameters.Add("@DNUMBER", DbType.Int32);
-         sqlite_cmd.Parameters["@DNUMBER"].Value = DNUM;
+         mydql_cmd.Parameters.Add("@DNUMBER", MySqlDbType.Int32).Value = DNUM;
+         mydql_cmd.Parameters["@DNUMBER"].Value = DNUM;
 
          string mgrssnStr= Console.ReadLine() ?? "9999";
          int MGRSSN = Int32.Parse(mgrssnStr);
-         sqlite_cmd.Parameters.Add("@MGR_SSN", DbType.Int32);
-         sqlite_cmd.Parameters["@MGR_SSN"].Value = MGRSSN;
+         mydql_cmd.Parameters.Add("@MGR_SSN", MySqlDbType.Int32).Value = MGRSSN;
+         mydql_cmd.Parameters["@MGR_SSN"].Value = MGRSSN;
 
          string sdateStr= Console.ReadLine() ?? "9999";
          string startdate = sdateStr;
          var parsedDate = DateTime.Parse(startdate);
-         sqlite_cmd.Parameters.Add("@STARTDATE", DbType.Date);
-         sqlite_cmd.Parameters["@STARTDATE"].Value =parsedDate;
+
+         mydql_cmd.Parameters.Add("@STARTDATE", MySqlDbType.Date).Value = parsedDate;
+         mydql_cmd.Parameters["@STARTDATE"].Value =parsedDate;
 
          string queryText = "Insert into DEPARTMENT values (@D_NAME, @DNUMBER, @MGR_SSN, @STARTDATE )";
-         sqlite_cmd.CommandText = queryText;
-         sqlite_cmd.ExecuteNonQuery();       
+         mydql_cmd.CommandText = queryText;
+         mydql_cmd.ExecuteNonQuery();       
           Console.WriteLine("Department created!");  
       }
    }

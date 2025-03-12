@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\SQLite\\dbtest.csproj": {}
+    "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj": {}
   },
   "projects": {
-    "C:\\SQLite\\dbtest.csproj": {
+    "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\SQLite\\dbtest.csproj",
+        "projectUniqueName": "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj",
         "projectName": "dbtest",
-        "projectPath": "C:\\SQLite\\dbtest.csproj",
-        "packagesPath": "C:\\Users\\engma\\.nuget\\packages\\",
-        "outputPath": "C:\\SQLite\\obj\\",
+        "projectPath": "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj",
+        "packagesPath": "C:\\Users\\abushatm\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\abushatm\\Downloads\\dbtest\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\engma\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\abushatm\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -32,6 +32,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -45,6 +50,10 @@
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.118, )"
+            },
+            "mysql.data": {
+              "target": "Package",
+              "version": "[9.2.0, )"
             }
           },
           "imports": [
@@ -63,7 +72,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.206/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
