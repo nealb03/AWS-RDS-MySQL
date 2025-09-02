@@ -1727,19 +1727,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\abushatm\\.nuget\\packages\\": {}
+    "C:\\Users\\Veteran\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj",
+      "projectUniqueName": "C:\\nealb03\\cloud495\\test01\\AWS-RDS-MySQL\\dbtest.csproj",
       "projectName": "dbtest",
-      "projectPath": "C:\\Users\\abushatm\\Downloads\\dbtest\\dbtest.csproj",
-      "packagesPath": "C:\\Users\\abushatm\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\abushatm\\Downloads\\dbtest\\obj\\",
+      "projectPath": "C:\\nealb03\\cloud495\\test01\\AWS-RDS-MySQL\\dbtest.csproj",
+      "packagesPath": "C:\\Users\\Veteran\\.nuget\\packages\\",
+      "outputPath": "C:\\nealb03\\cloud495\\test01\\AWS-RDS-MySQL\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\abushatm\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Veteran\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -1762,7 +1762,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -1797,7 +1798,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.206/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
